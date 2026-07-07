@@ -126,6 +126,26 @@
                 box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
             }
         }
+
+        /* Sticky controls layout */
+        .sticky-controls {
+            position: sticky;
+            top: var(--header-height, 80px);
+            z-index: 30;
+            background: rgba(248, 250, 252, 0.9); /* Opaque Slate 50 to hide content scroll */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: top 0.2s ease;
+        }
+
+        /* Hide horizontal scrollbar for categories on mobile */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col bg-[#f8fafc] relative overflow-x-hidden font-sans">
@@ -170,7 +190,7 @@
     </header>
 
     <!-- Main Container -->
-    <main class="flex-grow container mx-auto px-4 md:px-6 py-8 relative z-10">
+    <main class="flex-grow container mx-auto px-4 md:px-6 pt-8 pb-28 relative z-10">
         
         <!-- Hero Section & Infographic Stats Dashboard -->
         <div class="mb-8 rounded-3xl overflow-hidden bg-gradient-to-r from-sky-600 via-sky-500 to-blue-600 p-6 md:p-8 text-white shadow-lg relative">
@@ -297,26 +317,26 @@
         <!-- Main Content (Search and Files list) -->
         <div id="main-content" class="hidden">
             <!-- Search & Filter Controls Container -->
-            <div class="mb-8 space-y-5">
+            <div class="sticky-controls space-y-4 py-4 mb-6 -mx-4 px-4 sm:mx-0 sm:px-0 border-b border-slate-200/40">
                 <!-- Search Bar -->
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fa-solid fa-magnifying-glass text-slate-400 group-focus-within:text-sky-500 transition-colors text-lg"></i>
                     </div>
                     <input type="text" id="search-input" oninput="handleSearch(this.value)" 
-                           class="w-full pl-12 pr-4 py-4 bg-white/80 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent shadow-sm hover:border-slate-300 transition-all text-slate-700 font-semibold text-base placeholder:text-slate-400" 
+                           class="w-full pl-12 pr-4 py-4 bg-white/90 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent shadow-sm hover:border-slate-300 transition-all text-slate-700 font-semibold text-base placeholder:text-slate-400" 
                            placeholder="ค้นหาชื่อแบบฟอร์มหรือเอกสารการเงินที่คุณต้องการ...">
                 </div>
 
                 <!-- Category Filter Pills -->
-                <div class="bg-white/60 backdrop-blur-md p-5 rounded-3xl border border-slate-200/50 shadow-sm">
-                    <div class="flex items-center gap-2.5 mb-4">
+                <div class="bg-white/90 backdrop-blur-md p-4 sm:p-5 rounded-3xl border border-slate-200/50 shadow-sm">
+                    <div class="flex items-center gap-2.5 mb-3.5">
                         <div class="w-6 h-6 rounded-lg bg-sky-50 flex items-center justify-center text-sky-500">
                             <i class="fa-solid fa-tags text-xs"></i>
                         </div>
                         <h3 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider">เลือกหมวดหมู่เอกสาร</h3>
                     </div>
-                    <div id="category-container" class="flex flex-wrap gap-2">
+                    <div id="category-container" class="flex flex-nowrap sm:flex-wrap gap-2 overflow-x-auto pb-1.5 sm:pb-0 no-scrollbar">
                         <!-- Category Buttons dynamically added here -->
                     </div>
                 </div>
@@ -339,10 +359,10 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white/80 backdrop-blur-md border-t border-slate-100 mt-auto py-6 relative z-10">
-        <div class="container mx-auto px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-500 text-sm">
+    <footer class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200/80 py-3 sm:py-4 z-40 shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
+        <div class="container mx-auto px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 text-slate-500 text-xs sm:text-sm">
             <p>&copy; <span id="year"></span> ระบบดาวน์โหลดแบบฟอร์มกลุ่มงานการเงิน โรงพยาบาลนางรอง</p>
-            <p class="flex items-center gap-2 text-xs font-semibold bg-emerald-50 text-emerald-700 px-3.5 py-1.5 rounded-full border border-emerald-100">
+            <p class="flex items-center gap-2 text-[10px] sm:text-xs font-semibold bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full border border-emerald-100">
                 <span class="relative flex h-2 w-2">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -431,6 +451,7 @@
 
             renderCategoryButtons();
             renderContent();
+            setTimeout(adjustStickyOffset, 100);
         }
 
         function renderCategoryButtons() {
@@ -636,7 +657,19 @@
             document.getElementById('error-message').innerHTML = message;
         }
 
-        window.addEventListener('DOMContentLoaded', fetchGoogleSheetsData);
+        function adjustStickyOffset() {
+            const header = document.querySelector('header');
+            if (header) {
+                const headerHeight = header.offsetHeight;
+                document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchGoogleSheetsData();
+            setTimeout(adjustStickyOffset, 100);
+        });
+        window.addEventListener('resize', adjustStickyOffset);
 
     </script>
 </body>
