@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ดาวน์โหลดแบบฟอร์มกลุ่มงานการเงิน</title>
+    <title>ดาวน์โหลดแบบฟอร์มกลุ่มงานการเงิน | โรงพยาบาลนางรอง</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,157 +14,356 @@
             theme: {
                 extend: {
                     fontFamily: { sans: ['Prompt', 'sans-serif'] },
-                    colors: { primary: '#4f46e5', secondary: '#4338ca' }
+                    colors: {
+                        primary: '#0284c7',      /* Sky-600 */
+                        primaryHover: '#0369a1', /* Sky-700 */
+                        accentBlue: '#2563eb',   /* Blue-600 */
+                        slateDark: '#0f172a'     /* Slate-900 */
+                    }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #f4f7f6; }
+        /* Shimmer loading animation for skeletons */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+
+        /* Glassmorphism panel styling */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
         .glass-header {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(224, 242, 254, 0.7);
         }
+
         /* Card Hover Effects */
-        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-            border-color: #cbd5e1;
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .card-hover:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 25px -5px rgba(2, 132, 199, 0.1), 0 10px 10px -5px rgba(2, 132, 199, 0.04);
+            border-color: rgba(14, 165, 233, 0.4);
+        }
+
         /* List Row Hover Effects */
-        .list-hover { transition: all 0.2s ease; }
-        .list-hover:hover { background-color: #f8fafc; border-color: #cbd5e1; }
+        .list-hover {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .list-hover:hover {
+            transform: translateX(4px);
+            background-color: rgba(240, 249, 255, 0.45);
+            border-color: rgba(14, 165, 233, 0.35);
+        }
         
         /* Category Button Effects */
-        .filter-btn { transition: all 0.2s ease; }
+        .filter-btn {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
         .filter-btn.active {
-            background-color: #4f46e5; color: white;
-            box-shadow: 0 4px 10px -2px rgba(79, 70, 229, 0.4);
-            border-color: #4f46e5;
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: white;
+            box-shadow: 0 6px 15px -4px rgba(2, 132, 199, 0.4);
+            border-color: transparent;
         }
         
         /* View Toggle Button Effects */
-        .view-btn { transition: all 0.2s; }
-        .view-btn.active { background-color: white; color: #4f46e5; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .view-btn.inactive { color: #94a3b8; }
-        .view-btn.inactive:hover { color: #64748b; }
-
-        /* Loader */
-        .spinner {
-            border: 4px solid rgba(79, 70, 229, 0.1); border-left-color: #4f46e5;
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 1s linear infinite;
+        .view-btn {
+            transition: all 0.2s ease;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .view-btn.active {
+            background-color: white;
+            color: #0284c7;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
+        }
+        .view-btn.inactive {
+            color: #64748b;
+        }
+        .view-btn.inactive:hover {
+            color: #0284c7;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Subtle bounce for download icon on hover */
+        .group:hover .download-icon {
+            animation: bounce-down 0.8s ease infinite;
+        }
+        @keyframes bounce-down {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(2px); }
+        }
+
+        /* Pulse animation for active sync status indicator */
+        .pulse-green {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: pulse-green-anim 2s infinite;
+        }
+        @keyframes pulse-green-anim {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+<body class="text-slate-800 antialiased min-h-screen flex flex-col bg-[#f8fafc] relative overflow-x-hidden font-sans">
 
-    <header class="glass-header sticky top-0 z-50 py-4 shadow-sm">
-        <div class="container mx-auto px-4 md:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <!-- Glowing Background Aura Spheres (Infographic aesthetics) -->
+    <div class="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] rounded-full bg-sky-200/20 blur-[130px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] rounded-full bg-blue-200/20 blur-[130px] pointer-events-none z-0"></div>
+
+    <!-- Top Fade Grid Background (User structure) -->
+    <div class="absolute inset-0 z-0 pointer-events-none" style="
+        background-image: 
+          linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+          linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+        background-size: 20px 30px;
+        -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%);
+        mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%);
+    "></div>
+
+    <!-- Header Navigation -->
+    <header class="glass-header sticky top-0 z-50 py-4 shadow-sm relative">
+        <div class="container mx-auto px-4 md:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100 shrink-0 overflow-hidden">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-md border border-sky-100 shrink-0 overflow-hidden">
                     <img src="https://raw.githubusercontent.com/FinanceNangRong/financial-system/main/NRHOS.png" alt="Logo" class="w-full h-full object-contain p-1">
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 leading-tight tracking-tight">ดาวน์โหลดแบบฟอร์มกลุ่มงานการเงิน</h1>
+                    <h1 class="text-xl md:text-2xl font-bold text-slate-900 leading-tight tracking-tight">ดาวน์โหลดแบบฟอร์มกลุ่มงานการเงิน</h1>
+                    <p class="text-xs text-sky-600 font-semibold tracking-wide">โรงพยาบาลนางรอง • Financial Department Portal</p>
                 </div>
             </div>
             
             <!-- View Controls (Grid/List) -->
-            <div id="view-controls" class="hidden bg-gray-100 p-1 rounded-lg inline-flex self-start md:self-auto border border-gray-200">
-                <button onclick="changeView('grid')" id="btn-grid" class="view-btn active px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2">
+            <div id="view-controls" class="hidden bg-slate-100/80 p-1 rounded-xl inline-flex self-start sm:self-auto border border-slate-200/60 backdrop-blur-sm">
+                <button onclick="changeView('grid')" id="btn-grid" class="view-btn active px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
                     <i class="fa-solid fa-table-cells-large"></i> แบบการ์ด
                 </button>
-                <button onclick="changeView('list')" id="btn-list" class="view-btn inactive px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2">
+                <button onclick="changeView('list')" id="btn-list" class="view-btn inactive px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
                     <i class="fa-solid fa-list"></i> แบบรายการ
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="flex-grow container mx-auto px-4 md:px-6 py-8">
+    <!-- Main Container -->
+    <main class="flex-grow container mx-auto px-4 md:px-6 py-8 relative z-10">
         
-        <!-- Loading State -->
-        <div id="loading-state" class="flex flex-col items-center justify-center py-24">
-            <div class="spinner mb-6"></div>
-            <p class="text-gray-500 font-medium animate-pulse text-lg">กำลังซิงค์ข้อมูลจากฐานข้อมูล...</p>
+        <!-- Hero Section & Infographic Stats Dashboard -->
+        <div class="mb-8 rounded-3xl overflow-hidden bg-gradient-to-r from-sky-600 via-sky-500 to-blue-600 p-6 md:p-8 text-white shadow-lg relative">
+            <!-- Decorative Light Wave Overlay -->
+            <div class="absolute right-0 bottom-0 top-0 w-1/3 bg-radial-gradient from-white/10 to-transparent opacity-20 pointer-events-none"></div>
+            
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+                <div class="max-w-xl">
+                    <span class="bg-white/20 text-white text-xs font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">Financial Hub</span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold mt-3.5 mb-2 leading-tight">ศูนย์รวมแบบฟอร์มเอกสารทางการเงิน</h2>
+                    <p class="text-sky-100 text-sm leading-relaxed">ค้นหาและดาวน์โหลดเอกสารทางการเงินของโรงพยาบาลนางรองได้อย่างสะดวก รวดเร็ว และเป็นระบบ ข้อมูลทั้งหมดได้รับการเชื่อมต่อโดยตรงกับระบบคลาวด์</p>
+                </div>
+                
+                <!-- Dynamic Stats Cards (Infographic Elements) -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 shrink-0 w-full lg:w-auto">
+                    <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col justify-center min-w-[125px]">
+                        <span class="text-xs text-sky-200 font-semibold">แบบฟอร์มทั้งหมด</span>
+                        <span id="stat-total-forms" class="text-2xl font-bold mt-1">--</span>
+                        <span class="text-[10px] text-sky-200/80 mt-1">รายการ</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col justify-center min-w-[125px]">
+                        <span class="text-xs text-sky-200 font-semibold">หมวดหมู่เอกสาร</span>
+                        <span id="stat-total-categories" class="text-2xl font-bold mt-1">--</span>
+                        <span class="text-[10px] text-sky-200/80 mt-1">หมวดหมู่</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col justify-center min-w-[125px] col-span-2 sm:col-span-1">
+                        <span class="text-xs text-sky-200 font-semibold">สถานะระบบ</span>
+                        <span class="text-sm font-bold mt-2 flex items-center gap-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 pulse-green"></span>
+                            Live Sync
+                        </span>
+                        <span class="text-[10px] text-sky-200/80 mt-1">พร้อมใช้งาน 100%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State (Beautiful Skeleton Cards with Shimmer) -->
+        <div id="loading-state" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-6">
+            <!-- Render 8 skeleton cards -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/60 flex flex-col h-[220px] justify-between relative overflow-hidden animate-pulse">
+                <div>
+                    <div class="w-12 h-12 bg-slate-100 rounded-xl mb-4 shimmer"></div>
+                    <div class="h-4 bg-slate-100 rounded-md w-3/4 mb-3 shimmer"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/2 mb-2 shimmer"></div>
+                </div>
+                <div class="h-10 bg-slate-100 rounded-xl w-full shimmer"></div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/60 flex flex-col h-[220px] justify-between relative overflow-hidden animate-pulse">
+                <div>
+                    <div class="w-12 h-12 bg-slate-100 rounded-xl mb-4 shimmer"></div>
+                    <div class="h-4 bg-slate-100 rounded-md w-3/4 mb-3 shimmer"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/2 mb-2 shimmer"></div>
+                </div>
+                <div class="h-10 bg-slate-100 rounded-xl w-full shimmer"></div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/60 flex flex-col h-[220px] justify-between relative overflow-hidden animate-pulse">
+                <div>
+                    <div class="w-12 h-12 bg-slate-100 rounded-xl mb-4 shimmer"></div>
+                    <div class="h-4 bg-slate-100 rounded-md w-3/4 mb-3 shimmer"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/2 mb-2 shimmer"></div>
+                </div>
+                <div class="h-10 bg-slate-100 rounded-xl w-full shimmer"></div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/60 flex flex-col h-[220px] justify-between relative overflow-hidden animate-pulse">
+                <div>
+                    <div class="w-12 h-12 bg-slate-100 rounded-xl mb-4 shimmer"></div>
+                    <div class="h-4 bg-slate-100 rounded-md w-3/4 mb-3 shimmer"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/2 mb-2 shimmer"></div>
+                </div>
+                <div class="h-10 bg-slate-100 rounded-xl w-full shimmer"></div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/60 flex flex-col h-[220px] justify-between relative overflow-hidden animate-pulse">
+                <div>
+                    <div class="w-12 h-12 bg-slate-100 rounded-xl mb-4 shimmer"></div>
+                    <div class="h-4 bg-slate-100 rounded-md w-3/4 mb-3 shimmer"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/2 mb-2 shimmer"></div>
+                </div>
+                <div class="h-10 bg-slate-100 rounded-xl w-full shimmer"></div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/60 flex flex-col h-[220px] justify-between relative overflow-hidden animate-pulse">
+                <div>
+                    <div class="w-12 h-12 bg-slate-100 rounded-xl mb-4 shimmer"></div>
+                    <div class="h-4 bg-slate-100 rounded-md w-3/4 mb-3 shimmer"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/2 mb-2 shimmer"></div>
+                </div>
+                <div class="h-10 bg-slate-100 rounded-xl w-full shimmer"></div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/60 flex flex-col h-[220px] justify-between relative overflow-hidden animate-pulse">
+                <div>
+                    <div class="w-12 h-12 bg-slate-100 rounded-xl mb-4 shimmer"></div>
+                    <div class="h-4 bg-slate-100 rounded-md w-3/4 mb-3 shimmer"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/2 mb-2 shimmer"></div>
+                </div>
+                <div class="h-10 bg-slate-100 rounded-xl w-full shimmer"></div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/60 flex flex-col h-[220px] justify-between relative overflow-hidden animate-pulse">
+                <div>
+                    <div class="w-12 h-12 bg-slate-100 rounded-xl mb-4 shimmer"></div>
+                    <div class="h-4 bg-slate-100 rounded-md w-3/4 mb-3 shimmer"></div>
+                    <div class="h-3 bg-slate-100 rounded-md w-1/2 mb-2 shimmer"></div>
+                </div>
+                <div class="h-10 bg-slate-100 rounded-xl w-full shimmer"></div>
+            </div>
         </div>
 
         <!-- Error State -->
-        <div id="error-state" class="hidden flex-col items-center justify-center py-20 text-center">
-            <div class="w-24 h-24 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-5xl mb-6 border-8 border-red-100">
-                <i class="fa-solid fa-triangle-exclamation"></i>
+        <div id="error-state" class="hidden flex-col items-center justify-center py-20 text-center bg-white rounded-3xl border border-rose-100 shadow-xl max-w-xl mx-auto p-8 relative overflow-hidden">
+            <!-- Background Glow -->
+            <div class="absolute -top-12 -left-12 w-32 h-32 bg-rose-50 rounded-full blur-2xl opacity-70"></div>
+            
+            <div class="relative z-10">
+                <div class="w-20 h-20 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center text-4xl mb-6 border-4 border-rose-100 mx-auto animate-bounce">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h2 class="text-xl md:text-2xl font-bold text-slate-900 mb-2">เกิดข้อผิดพลาดในการโหลดข้อมูล</h2>
+                <p id="error-message" class="text-slate-600 text-sm leading-relaxed max-w-md mx-auto mb-8"></p>
+                <button onclick="window.location.reload()" class="px-6 py-3.5 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all font-semibold shadow-lg shadow-slate-200 flex items-center gap-2 mx-auto">
+                    <i class="fa-solid fa-rotate-right"></i> โหลดหน้าเว็บใหม่อีกครั้ง
+                </button>
             </div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">เกิดข้อผิดพลาดในการโหลดข้อมูล</h2>
-            <p id="error-message" class="text-gray-600 max-w-lg mx-auto mb-8"></p>
-            <button onclick="window.location.reload()" class="px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors font-medium shadow-md">
-                <i class="fa-solid fa-rotate-right mr-2"></i> โหลดหน้าเว็บใหม่อีกครั้ง
-            </button>
         </div>
 
+        <!-- Main Content (Search and Files list) -->
         <div id="main-content" class="hidden">
-            <!-- Search Bar -->
-            <div class="mb-6 relative">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+            <!-- Search & Filter Controls Container -->
+            <div class="mb-8 space-y-5">
+                <!-- Search Bar -->
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-magnifying-glass text-slate-400 group-focus-within:text-sky-500 transition-colors text-lg"></i>
+                    </div>
+                    <input type="text" id="search-input" oninput="handleSearch(this.value)" 
+                           class="w-full pl-12 pr-4 py-4 bg-white/80 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent shadow-sm hover:border-slate-300 transition-all text-slate-700 font-semibold text-base placeholder:text-slate-400" 
+                           placeholder="ค้นหาชื่อแบบฟอร์มหรือเอกสารการเงินที่คุณต้องการ...">
                 </div>
-                <input type="text" id="search-input" oninput="handleSearch(this.value)" 
-                       class="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all text-gray-700" 
-                       placeholder="ค้นหาชื่อแบบฟอร์ม...">
-            </div>
 
-            <!-- Category Filter Area -->
-            <div class="mb-8 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                <div class="flex items-center gap-3 mb-4">
-                    <i class="fa-solid fa-filter text-indigo-500"></i>
-                    <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider">เลือกหมวดหมู่เอกสาร</h3>
-                </div>
-                <div id="category-container" class="flex flex-wrap gap-2.5">
-                    <!-- ปุ่มหมวดหมู่จะถูกแทรกที่นี่ -->
+                <!-- Category Filter Pills -->
+                <div class="bg-white/60 backdrop-blur-md p-5 rounded-3xl border border-slate-200/50 shadow-sm">
+                    <div class="flex items-center gap-2.5 mb-4">
+                        <div class="w-6 h-6 rounded-lg bg-sky-50 flex items-center justify-center text-sky-500">
+                            <i class="fa-solid fa-tags text-xs"></i>
+                        </div>
+                        <h3 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider">เลือกหมวดหมู่เอกสาร</h3>
+                    </div>
+                    <div id="category-container" class="flex flex-wrap gap-2">
+                        <!-- Category Buttons dynamically added here -->
+                    </div>
                 </div>
             </div>
 
             <!-- Content Display Area (Grid or List) -->
-            <div id="content-display-area">
-                <!-- ข้อมูลจะถูก render ที่นี่ -->
+            <div id="content-display-area" class="py-2">
+                <!-- Cards/Rows dynamically added here -->
             </div>
 
-            <!-- Empty State -->
-            <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-center bg-white rounded-2xl border border-gray-200 border-dashed">
-                <img src="https://placehold.co/150x150/f8fafc/cbd5e1?text=No+Forms&font=roboto" alt="No forms" class="rounded-full mb-4 opacity-50">
-                <h3 class="text-xl font-bold text-gray-700 mb-2">ไม่พบข้อมูล</h3>
-                <p class="text-gray-500">ไม่มีแบบฟอร์มในหมวดหมู่ที่คุณเลือกในขณะนี้</p>
+            <!-- Empty Search State -->
+            <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-center bg-white/60 backdrop-blur-md rounded-3xl border border-slate-200 border-dashed max-w-md mx-auto p-6 shadow-sm">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-2xl mb-4">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-700 mb-2">ไม่พบข้อมูลแบบฟอร์ม</h3>
+                <p class="text-slate-500 text-sm">ไม่มีแบบฟอร์มที่ตรงกับคำค้นหาหรือหมวดหมู่ที่คุณเลือกในขณะนี้</p>
             </div>
         </div>
     </main>
 
-    <footer class="bg-white border-t border-gray-200 mt-auto">
-        <div class="container mx-auto px-4 py-6 text-center text-gray-500 text-sm flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>&copy; <span id="year"></span> ระบบดาวน์โหลดแบบฟอร์มการเงิน</p>
-            <p class="flex items-center gap-2 text-xs">
+    <!-- Footer -->
+    <footer class="bg-white/80 backdrop-blur-md border-t border-slate-100 mt-auto py-6 relative z-10">
+        <div class="container mx-auto px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-500 text-sm">
+            <p>&copy; <span id="year"></span> ระบบดาวน์โหลดแบบฟอร์มกลุ่มงานการเงิน โรงพยาบาลนางรอง</p>
+            <p class="flex items-center gap-2 text-xs font-semibold bg-emerald-50 text-emerald-700 px-3.5 py-1.5 rounded-full border border-emerald-100">
                 <span class="relative flex h-2 w-2">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                เชื่อมต่อกับ Google Sheets อัตโนมัติ
+                เชื่อมต่อฐานข้อมูล Google Sheets เรียบร้อยแล้ว
             </p>
         </div>
     </footer>
 
+    <!-- Logic Scripts -->
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // ตั้งค่า Google Sheets ID
+        // Google Sheets CSV config
         const SHEET_ID = '1vnPBmv5Ev2oi7Bupq1gN-cGFwhjQrn0QtEKy7WCOSR0';
         const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
         let formsData = [];
         let uniqueCategories = [];
         let currentCategory = 'ทั้งหมด';
-        let currentView = 'grid'; // ค่าเริ่มต้นคือแบบตาราง (Grid/Cards)
+        let currentView = 'grid'; 
         let searchQuery = '';
 
         async function fetchGoogleSheetsData() {
@@ -185,24 +384,24 @@
                     }
                 });
             } catch (error) {
-                showError('เกิดข้อผิดพลาดในการโหลดข้อมูล<br><span class="text-sm font-normal mt-2 block text-gray-500">โปรดตรวจสอบว่าเปิดการแชร์ลิงก์ Google Sheets เป็น "ทุกคนที่มีลิงก์ (Anyone with the link)" แล้วหรือไม่</span>');
+                showError('เกิดข้อผิดพลาดในการโหลดข้อมูล<br><span class="text-sm font-normal mt-2 block text-slate-500">โปรดตรวจสอบว่าได้เปิดการแชร์ลิงก์ Google Sheets เป็น "ทุกคนที่มีลิงก์ (Anyone with the link)" แล้ว</span>');
                 console.error(error);
             }
         }
 
         function processData(rows) {
-            // เงื่อนไขที่ 2: เริ่มใช้ข้อมูลตั้งแต่แถวที่ 2 เป็นต้นไป (ตัดแถวที่ 1 ซึ่งเป็น Header ออก)
+            // Drop sheet headers (first row)
             const dataRows = rows.slice(1);
             let tempCategories = new Set();
 
             formsData = dataRows.map((row, index) => {
-                const colA = row[0] ? row[0].trim() : ''; // ประเภท (หมวดหมู่)
-                const colB = row[1] ? row[1].trim() : ''; // ชื่อรายการ
-                const colC = row[2] ? row[2].trim() : ''; // ลิงก์
+                const colA = row[0] ? row[0].trim() : ''; // Categories
+                const colB = row[1] ? row[1].trim() : ''; // Title/Name
+                const colC = row[2] ? row[2].trim() : ''; // Download URL
 
                 if (!colB) return null;
 
-                // เงื่อนไขที่ 3: แยกหมวดหมู่ด้วยลูกน้ำ (,) เพื่อรองรับ 1 รายการอยู่หลายหมวดหมู่
+                // Support comma separated categories
                 const categories = colA.split(',').map(c => c.trim()).filter(c => c !== '');
                 if (categories.length === 0) categories.push('ทั่วไป');
 
@@ -216,11 +415,16 @@
                 };
             }).filter(item => item !== null);
 
-            // เรียงลำดับชื่อตามตัวเลขแบบธรรมชาติ (Natural Sort)
+            // Natural sorting in Thai language
             formsData.sort((a, b) => a.name.localeCompare(b.name, 'th', { numeric: true }));
 
             uniqueCategories = ['ทั้งหมด', ...Array.from(tempCategories).sort()];
 
+            // Update Statistics
+            document.getElementById('stat-total-forms').textContent = formsData.length;
+            document.getElementById('stat-total-categories').textContent = uniqueCategories.length - 1; // exclude "ทั้งหมด"
+
+            // Toggle view visibility
             document.getElementById('loading-state').classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
             document.getElementById('view-controls').classList.remove('hidden');
@@ -234,9 +438,28 @@
             container.innerHTML = '';
 
             uniqueCategories.forEach(category => {
+                let count = 0;
+                if (category === 'ทั้งหมด') {
+                    count = formsData.length;
+                } else {
+                    count = formsData.filter(form => form.categories.includes(category)).length;
+                }
+
                 const btn = document.createElement('button');
-                btn.className = `filter-btn px-5 py-2 rounded-xl text-sm font-medium border ${category === currentCategory ? 'active border-transparent' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`;
-                btn.textContent = category;
+                btn.className = `filter-btn px-5 py-2.5 rounded-xl text-sm font-bold border flex items-center gap-2 ${
+                    category === currentCategory 
+                        ? 'active border-transparent' 
+                        : 'bg-white/80 border-slate-200 text-slate-600 hover:bg-sky-50/50 hover:text-sky-600 hover:border-sky-200'
+                }`;
+                
+                const badgeColor = category === currentCategory 
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-slate-100 text-slate-500';
+                
+                btn.innerHTML = `
+                    <span>${category}</span>
+                    <span class="px-1.5 py-0.5 rounded-md text-[10px] ${badgeColor}">${count}</span>
+                `;
                 
                 btn.onclick = () => {
                     currentCategory = category;
@@ -255,11 +478,11 @@
             const btnList = document.getElementById('btn-list');
 
             if (viewType === 'grid') {
-                btnGrid.className = 'view-btn active px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2';
-                btnList.className = 'view-btn inactive px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2';
+                btnGrid.className = 'view-btn active px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2';
+                btnList.className = 'view-btn inactive px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2';
             } else {
-                btnList.className = 'view-btn active px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2';
-                btnGrid.className = 'view-btn inactive px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2';
+                btnList.className = 'view-btn active px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2';
+                btnGrid.className = 'view-btn inactive px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2';
             }
 
             renderContent();
@@ -267,18 +490,18 @@
 
         function getFileIcon(url) {
             const lowerUrl = url.toLowerCase();
-            if (lowerUrl.includes('word') || lowerUrl.includes('document') || lowerUrl.includes('.doc')) {
-                return { class: "fa-solid fa-file-word text-blue-600", bg: "bg-blue-100/50", border: "border-blue-100" };
-            } else if (lowerUrl.includes('excel') || lowerUrl.includes('spreadsheet') || lowerUrl.includes('.xls')) {
-                return { class: "fa-solid fa-file-excel text-emerald-600", bg: "bg-emerald-100/50", border: "border-emerald-100" };
+            if (lowerUrl.includes('word') || lowerUrl.includes('document') || lowerUrl.includes('.doc') || lowerUrl.includes('.docx')) {
+                return { class: "fa-solid fa-file-word text-blue-600", bg: "bg-blue-50", border: "border-blue-100" };
+            } else if (lowerUrl.includes('excel') || lowerUrl.includes('spreadsheet') || lowerUrl.includes('.xls') || lowerUrl.includes('.xlsx')) {
+                return { class: "fa-solid fa-file-excel text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" };
             } else if (lowerUrl.includes('drive') || lowerUrl.includes('google')) {
-                return { class: "fa-brands fa-google-drive text-yellow-500", bg: "bg-yellow-100/50", border: "border-yellow-100" };
+                return { class: "fa-brands fa-google-drive text-amber-500", bg: "bg-amber-50", border: "border-amber-100" };
             } else if (lowerUrl.includes('pdf')) {
-                return { class: "fa-solid fa-file-pdf text-red-500", bg: "bg-red-100/50", border: "border-red-100" };
+                return { class: "fa-solid fa-file-pdf text-rose-500", bg: "bg-rose-50", border: "border-rose-100" };
             } else if (url === '#' || url === '') {
-                return { class: "fa-solid fa-file-circle-xmark text-gray-400", bg: "bg-gray-100", border: "border-gray-200" };
+                return { class: "fa-solid fa-file-circle-xmark text-slate-400", bg: "bg-slate-50", border: "border-slate-200" };
             }
-            return { class: "fa-solid fa-file-lines text-indigo-500", bg: "bg-indigo-50", border: "border-indigo-100" };
+            return { class: "fa-solid fa-file-lines text-sky-600", bg: "bg-sky-50", border: "border-sky-100" };
         }
 
         function handleSearch(value) {
@@ -293,12 +516,12 @@
 
             let filteredForms = formsData;
 
-            // กรองตามหมวดหมู่
+            // Filter by Category
             if (currentCategory !== 'ทั้งหมด') {
                 filteredForms = filteredForms.filter(form => form.categories.includes(currentCategory));
             }
 
-            // กรองตามคำค้นหา
+            // Filter by Search Query
             if (searchQuery !== '') {
                 filteredForms = filteredForms.filter(form => form.name.toLowerCase().includes(searchQuery));
             }
@@ -315,60 +538,75 @@
             container.classList.remove('hidden');
 
             if (currentView === 'grid') {
-                // โครงสร้างแบบ Grid/Cards
+                // Card Grid View
                 container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6";
                 
                 filteredForms.forEach(form => {
                     const iconStyle = getFileIcon(form.url);
                     const badgesHTML = form.categories.map(cat => 
-                        `<span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded font-medium border border-gray-200">${cat}</span>`
+                        `<span class="px-2.5 py-0.5 bg-sky-50/70 text-sky-700 text-[10px] rounded-md font-bold border border-sky-100/50">${cat}</span>`
                     ).join('');
 
                     const isNoLink = form.url === '#' || form.url === '';
-                    const btnClass = isNoLink ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border border-primary text-primary hover:bg-primary hover:text-white';
+                    const btnClass = isNoLink 
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200' 
+                        : 'bg-white border border-sky-500 text-sky-600 hover:bg-sky-600 hover:text-white hover:border-sky-600 shadow-sm hover:shadow-md hover:shadow-sky-100';
                     
                     container.innerHTML += `
-                        <div class="bg-white rounded-2xl p-5 border border-gray-200 card-hover flex flex-col h-full group relative overflow-hidden">
-                            <!-- Background Decor -->
-                            <div class="absolute -right-8 -top-8 w-32 h-32 ${iconStyle.bg} rounded-full blur-2xl opacity-40 group-hover:opacity-80 transition-opacity"></div>
+                        <div class="bg-white rounded-2xl p-5 border border-slate-200/70 card-hover flex flex-col h-full group relative overflow-hidden shadow-sm">
+                            <!-- Background Decor Glow -->
+                            <div class="absolute -right-8 -top-8 w-32 h-32 ${iconStyle.bg} rounded-full blur-2xl opacity-40 group-hover:opacity-80 transition-all duration-300 pointer-events-none"></div>
                             
                             <div class="relative z-10 flex-grow flex flex-col">
-                                <div class="w-12 h-12 ${iconStyle.bg} border ${iconStyle.border} rounded-xl flex items-center justify-center text-xl mb-4">
+                                <div class="w-12 h-12 ${iconStyle.bg} border border-slate-100 rounded-2xl flex items-center justify-center text-xl mb-4 group-hover:scale-105 transition-transform duration-300">
                                     <i class="${iconStyle.class}"></i>
                                 </div>
-                                <h3 class="text-base font-semibold text-gray-800 mb-3 leading-tight line-clamp-3">${form.name}</h3>
+                                <h3 class="text-base font-bold text-slate-800 mb-3 leading-snug line-clamp-3 group-hover:text-sky-900 transition-colors">${form.name}</h3>
                                 <div class="flex flex-wrap gap-1.5 mb-6 mt-auto">
                                     ${badgesHTML}
                                 </div>
                             </div>
                             <a href="${isNoLink ? 'javascript:void(0)' : form.url}" ${isNoLink ? '' : 'target="_blank" rel="noopener noreferrer"'} 
-                               class="relative z-10 w-full flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-xl transition-colors duration-200 ${btnClass}">
-                                ${isNoLink ? 'ไม่มีไฟล์แนบ' : '<i class="fa-solid fa-download mr-2"></i> โหลดเอกสาร'}
+                               class="relative z-10 w-full flex items-center justify-center px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 ${btnClass}">
+                                ${isNoLink ? 'ไม่มีไฟล์แนบ' : '<i class="fa-solid fa-download mr-2 download-icon"></i> ดาวน์โหลดเอกสาร'}
                             </a>
                         </div>
                     `;
                 });
             } else {
-                // โครงสร้างแบบ List/Rows
+                // List Row View
                 container.className = "flex flex-col gap-3";
                 
                 filteredForms.forEach(form => {
                     const iconStyle = getFileIcon(form.url);
                     const badgesHTML = form.categories.map(cat => 
-                        `<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md font-medium whitespace-nowrap">${cat}</span>`
+                        `<span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded border border-slate-200/50 font-semibold whitespace-nowrap">${cat}</span>`
                     ).join('');
 
                     const isNoLink = form.url === '#' || form.url === '';
-                    const btnClass = isNoLink ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-primary text-white hover:bg-secondary shadow-sm shadow-indigo-200';
+                    const btnClass = isNoLink 
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200' 
+                        : 'bg-sky-600 text-white hover:bg-sky-700 shadow-sm shadow-sky-100 hover:shadow-md';
+
+                    let accentBorder = "border-l-4 border-l-sky-500";
+                    if (form.url.toLowerCase().includes('word') || form.url.toLowerCase().includes('.doc') || form.url.toLowerCase().includes('.docx')) {
+                        accentBorder = "border-l-4 border-l-blue-500";
+                    } else if (form.url.toLowerCase().includes('excel') || form.url.toLowerCase().includes('.xls') || form.url.toLowerCase().includes('.xlsx')) {
+                        accentBorder = "border-l-4 border-l-emerald-500";
+                    } else if (form.url.toLowerCase().includes('drive') || form.url.toLowerCase().includes('google')) {
+                        accentBorder = "border-l-4 border-l-amber-500";
+                    } else if (form.url.toLowerCase().includes('pdf')) {
+                        accentBorder = "border-l-4 border-l-rose-500";
+                    }
 
                     container.innerHTML += `
-                        <div class="bg-white rounded-xl p-4 border border-gray-200 list-hover flex flex-col md:flex-row md:items-center gap-4 group">
+                        <div class="bg-white rounded-xl p-4 border border-slate-200/60 list-hover flex flex-col md:flex-row md:items-center gap-4 group ${accentBorder} shadow-sm">
                             <div class="flex items-center gap-4 flex-grow">
-                                <div class="w-10 h-10 flex-shrink-0 ${iconStyle.bg} rounded-lg flex items-center justify-center text-lg">
+                                <div class="w-10 h-10 flex-shrink-0 ${iconStyle.bg} rounded-lg flex items-center justify-center text-lg border border-slate-100">
                                     <i class="${iconStyle.class}"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-base font-semibold text-gray-800 leading-snug group-hover:text-primary transition-colors">${form.name}</h3>
+                                    <h3 class="text-base font-bold text-slate-800 leading-snug group-hover:text-sky-600 transition-colors">${form.name}</h3>
                                     <div class="flex flex-wrap gap-1.5 mt-2 md:hidden">
                                         ${badgesHTML}
                                     </div>
@@ -379,10 +617,10 @@
                                 ${badgesHTML}
                             </div>
                             
-                            <div class="mt-3 md:mt-0 md:ml-4 flex-shrink-0 w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 border-gray-100">
+                            <div class="mt-3 md:mt-0 md:ml-4 flex-shrink-0 w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 border-slate-100">
                                 <a href="${isNoLink ? 'javascript:void(0)' : form.url}" ${isNoLink ? '' : 'target="_blank" rel="noopener noreferrer"'} 
-                                   class="w-full md:w-auto inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium rounded-lg transition-all ${btnClass}">
-                                    ${isNoLink ? 'ไม่มีไฟล์แนบ' : '<i class="fa-solid fa-download mr-2"></i> ดาวน์โหลด'}
+                                   class="w-full md:w-auto inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold rounded-xl transition-all ${btnClass}">
+                                    ${isNoLink ? 'ไม่มีไฟล์แนบ' : '<i class="fa-solid fa-download mr-2 download-icon"></i> ดาวน์โหลด'}
                                 </a>
                             </div>
                         </div>
